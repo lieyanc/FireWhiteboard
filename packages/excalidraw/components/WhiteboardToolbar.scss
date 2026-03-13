@@ -33,6 +33,10 @@
     gap: 2px;
   }
 
+  .whiteboard-toolbar__section--colors {
+    --whiteboard-color-scale: 1.5;
+  }
+
   .whiteboard-toolbar__divider {
     width: 1px;
     height: 28px;
@@ -71,12 +75,17 @@
   // Color buttons
   .whiteboard-toolbar__color-button {
     @extend %toolbar-button-base;
+    padding: calc(6px * var(--whiteboard-color-scale, 1))
+      calc(10px * var(--whiteboard-color-scale, 1));
+    min-width: calc(44px * var(--whiteboard-color-scale, 1));
+    height: calc(48px * var(--whiteboard-color-scale, 1));
+    gap: calc(2px * var(--whiteboard-color-scale, 1));
   }
 
   .whiteboard-toolbar__color-swatch {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
+    width: calc(22px * var(--whiteboard-color-scale, 1));
+    height: calc(22px * var(--whiteboard-color-scale, 1));
+    border-radius: calc(6px * var(--whiteboard-color-scale, 1));
     border: 2px solid var(--default-border-color);
     position: relative;
     overflow: hidden;
@@ -103,7 +112,7 @@
   }
 
   .whiteboard-toolbar__color-label {
-    font-size: 11px;
+    font-size: calc(11px * var(--whiteboard-color-scale, 1));
     font-weight: 500;
     color: var(--text-primary-color);
     opacity: 0.7;
@@ -112,12 +121,12 @@
   .whiteboard-toolbar__stroke-inline {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: calc(6px * var(--whiteboard-color-scale, 1));
     padding: 0 4px;
   }
 
   .whiteboard-toolbar__inline-label {
-    font-size: 11px;
+    font-size: calc(11px * var(--whiteboard-color-scale, 1));
     font-weight: 500;
     color: var(--text-primary-color);
     opacity: 0.7;
@@ -127,7 +136,7 @@
   .whiteboard-toolbar__inline-swatches {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: calc(4px * var(--whiteboard-color-scale, 1));
   }
 
   // Color grid in popover
@@ -141,7 +150,7 @@
   .whiteboard-toolbar__color-option {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: calc(6px * var(--whiteboard-color-scale, 1));
     border: 2px solid transparent;
     cursor: pointer;
     position: relative;
@@ -179,8 +188,8 @@
   }
 
   .whiteboard-toolbar__color-option--inline {
-    width: 26px;
-    height: 26px;
+    width: calc(26px * var(--whiteboard-color-scale, 1));
+    height: calc(26px * var(--whiteboard-color-scale, 1));
 
     &:hover {
       transform: none;

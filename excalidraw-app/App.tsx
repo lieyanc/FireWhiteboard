@@ -118,6 +118,7 @@ import {
 } from "./data/localStorage";
 
 import { loadFilesFromFirebase } from "./data/firebase";
+import { getInitialFireWhiteboardAppState } from "./appState";
 import {
   LibraryIndexedDBAdapter,
   LibraryLocalStorageMigrationAdapter,
@@ -225,6 +226,13 @@ const initializeScene = async (opts: {
   const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
 
   const localDataState = importFromLocalStorage();
+  const localAppState = getInitialFireWhiteboardAppState({
+    appState: localDataState?.appState,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    offsetLeft: 0,
+    offsetTop: 0,
+  });
 
   let scene: Omit<
     RestoredDataState,
@@ -238,7 +246,7 @@ const initializeScene = async (opts: {
       repairBindings: true,
       deleteInvisibleElements: true,
     }),
-    appState: restoreAppState(localDataState?.appState, null),
+    appState: restoreAppState(localDataState?.appState, localAppState),
   };
 
   let roomLinkData = getCollaborationLinkData(window.location.href);
@@ -270,7 +278,7 @@ const initializeScene = async (opts: {
             imported.appState,
             // local appState when importing from backend to ensure we restore
             // localStorage user settings which we do not persist on server.
-            localDataState?.appState,
+            localAppState,
           ),
         };
       }
@@ -301,7 +309,11 @@ const initializeScene = async (opts: {
     const url = externalUrlMatch[1];
     try {
       const request = await fetch(window.decodeURIComponent(url));
-      const data = await loadFromBlob(await request.blob(), null, null);
+      const data = await loadFromBlob(
+        await request.blob(),
+        localAppState,
+        null,
+      );
       if (
         !scene.elements.length ||
         (await openConfirmModal(shareableLinkConfirmDialog))

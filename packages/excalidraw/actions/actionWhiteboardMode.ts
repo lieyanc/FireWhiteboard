@@ -14,10 +14,16 @@ export const actionToggleWhiteboardMode = register({
     predicate: (appState) => !appState.whiteboardMode,
   },
   perform(elements, appState) {
+    const nextWhiteboardMode = !appState.whiteboardMode;
+
     return {
       appState: {
         ...appState,
-        whiteboardMode: !appState.whiteboardMode,
+        whiteboardMode: nextWhiteboardMode,
+        ...(nextWhiteboardMode &&
+        appState.freedrawSmoothingEnabled === undefined
+          ? { freedrawSmoothingEnabled: false }
+          : {}),
       },
       captureUpdate: CaptureUpdateAction.EVENTUALLY,
     };

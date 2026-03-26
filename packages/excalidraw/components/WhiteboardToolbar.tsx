@@ -108,6 +108,11 @@ export const WhiteboardToolbar: React.FC<WhiteboardToolbarProps> = ({
     app.setActiveTool({ type: toolType as any });
   };
 
+  const handleStrokeColorSelect = (color: string) => {
+    setAppState({ currentItemStrokeColor: color });
+    handleToolSelect("freedraw");
+  };
+
   const currentStrokeColor = appState.currentItemStrokeColor;
   const currentBgColor = appState.currentItemBackgroundColor;
   const currentStrokeWidth = appState.currentItemStrokeWidth;
@@ -137,9 +142,7 @@ export const WhiteboardToolbar: React.FC<WhiteboardToolbarProps> = ({
                       },
                     )}
                     style={{ backgroundColor: color }}
-                    onClick={() => {
-                      setAppState({ currentItemStrokeColor: color });
-                    }}
+                    onClick={() => handleStrokeColorSelect(color)}
                   />
                 ))}
               </div>

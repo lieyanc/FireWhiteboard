@@ -33,6 +33,12 @@ describe("WhiteboardToolbar", () => {
     await waitFor(() => {
       expect(h.state.currentItemStrokeColor).toBe("#e03131");
       expect(h.state.activeTool.type).toBe("freedraw");
+      expect(swatches[1]).toHaveClass(
+        "whiteboard-toolbar__color-option--active",
+      );
+      expect(swatches[0]).not.toHaveClass(
+        "whiteboard-toolbar__color-option--active",
+      );
     });
   });
 });

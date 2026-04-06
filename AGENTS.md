@@ -13,6 +13,7 @@ If instructions conflict, follow direct user, system, or developer instructions 
 - Prefer workspace aliases from `tsconfig.json` over deep cross-package relative imports.
 ## Fork-First Working Model
 - This repo's main fork change is `appState.whiteboardMode`.
+- FireWhiteboard app startup defaults now enter whiteboard mode immediately; do not assume the app boots into the normal Excalidraw editor path.
 - If a task touches toolbar, footer, zoom, onboarding, free draw, or classroom UX, inspect the whiteboard path first.
 - Whiteboard mode is not just a visual theme; it swaps major UI surfaces and interaction rules.
 - Preserve whiteboard-specific Chinese labels unless the task explicitly changes localization.
@@ -20,7 +21,7 @@ If instructions conflict, follow direct user, system, or developer instructions 
 - Before editing shared UI, search for `whiteboardMode`, `zoomLocked`, and `freedrawSmoothingEnabled`.
 - When adding new teaching-mode behavior, prefer gating it behind whiteboard mode instead of changing the default editor path.
 ## Whiteboard File Map
-- `packages/excalidraw/actions/actionWhiteboardMode.ts`: toggle action for entering and leaving whiteboard mode.
+- `packages/excalidraw/actions/actionWhiteboardMode.ts`: toggle action for entering and leaving whiteboard mode; entering whiteboard mode also disables smoothing if no explicit preference exists.
 - `packages/excalidraw/components/LayerUI.tsx`: decides which UI is hidden or shown in whiteboard mode.
 - `packages/excalidraw/components/WhiteboardToolbar.tsx`: simplified toolbar used in whiteboard mode.
 - `packages/excalidraw/components/WhiteboardToolbar.scss`: whiteboard toolbar layout and scaling behavior.
@@ -28,7 +29,9 @@ If instructions conflict, follow direct user, system, or developer instructions 
 - `packages/excalidraw/components/Actions.tsx`: whiteboard zoom-lock control lives in the zoom actions area.
 - `packages/excalidraw/components/footer/Footer.tsx`: whiteboard page navigation replaces the normal help button.
 - `excalidraw-app/components/AppMainMenu.tsx`: whiteboard menu items, stroke stabilization toggle, and scale sliders.
-- `packages/excalidraw/appState.ts`: defaults and storage policy for whiteboard-specific fields.
+- `packages/excalidraw/appState.ts`: base editor defaults and storage policy for whiteboard-specific fields.
+- `excalidraw-app/appState.ts`: FireWhiteboard startup defaults and browser-state normalization for whiteboard mode.
+- `excalidraw-app/data/localStorage.ts`: rehydrates local app state through FireWhiteboard's whiteboard-aware defaults helper.
 - `packages/excalidraw/components/App.tsx`: injects whiteboard CSS variables and enforces some whiteboard input behavior.
 - `packages/element/src/shape.ts`: free draw smoothing behavior changes when whiteboard stabilization is disabled.
 ## Whiteboard Behavior Map
@@ -38,6 +41,8 @@ If instructions conflict, follow direct user, system, or developer instructions 
 - `WhiteboardToolbar.tsx` promotes three primary tools with Chinese labels: `hand`, `freedraw`, `eraser`.
 - Secondary tools move into a `more` dropdown: selection, rectangle, diamond, ellipse, arrow, line, text, image.
 - Whiteboard toolbar exposes inline stroke colors, fill selection, stroke width presets plus slider, and opacity presets.
+- Clicking an inline stroke color in `WhiteboardToolbar.tsx` updates `currentItemStrokeColor` and auto-switches the active tool to `freedraw`.
+- `WhiteboardToolbar.scss` scales the color controls up relative to the rest of the toolbar via `--whiteboard-color-scale`.
 - `Footer.tsx` keeps zoom controls but wraps them in scaled whiteboard side controls.
 - `Footer.tsx` replaces the normal help button with left and right page navigation buttons in whiteboard mode.
 - `actionCanvas.tsx` only shows the zoom-lock toggle when `appState.whiteboardMode` is true.
@@ -46,13 +51,17 @@ If instructions conflict, follow direct user, system, or developer instructions 
 - `LayerUI.scss` applies those scale variables to footer side controls and page navigation.
 ## Whiteboard State And Persistence
 - Whiteboard-related `AppState` fields include `whiteboardMode`, `zoomLocked`, `freedrawSmoothingEnabled`, `whiteboardToolbarScale`, `whiteboardSideControlsScale`, and `whiteboardPageNavScale`.
-- Defaults in `appState.ts`: `whiteboardMode` is `false`, `zoomLocked` is `true`, and the three scale values default to `1`.
+- Base editor defaults in `packages/excalidraw/appState.ts`: `whiteboardMode` is `false`, `zoomLocked` is `true`, and the three scale values default to `1`.
+- FireWhiteboard startup defaults in `excalidraw-app/appState.ts`: `whiteboardMode` is `true` and `freedrawSmoothingEnabled` is `false`.
 - These fields are browser-persisted but not exported to files and not synced to server state.
 - If you add new whiteboard-only UI state, match this storage pattern unless there is a strong reason not to.
 - `freedrawSmoothingEnabled` is app-level UI state, but free draw elements also carry an element-level flag when smoothing is explicitly disabled.
+- `getLocalAppStateWithWhiteboardDefaults()` only forces `freedrawSmoothingEnabled: false` when whiteboard mode is active; if whiteboard mode is off and no explicit preference was saved, smoothing stays unset.
+- `getInitialFireWhiteboardAppState()` applies FireWhiteboard defaults at app boot, then overlays restored browser state and viewport metrics.
 - `newFreeDrawElement()` only stores `freedrawSmoothingEnabled: false` when smoothing is off.
 - `restore.ts` preserves that element-level `false` value on import/restore.
 - `shape.ts` maps disabled stabilization to `smoothing: 0` and `streamline: 0`.
+- `actionToggleWhiteboardMode` preserves an explicit smoothing preference when entering whiteboard mode; it only defaults smoothing off when the preference is currently undefined.
 ## Whiteboard Onboarding And Fullscreen
 - Entering whiteboard mode triggers onboarding if the document is not already fullscreen.
 - Onboarding visibility is managed in `LayerUI.tsx`, not inside the toolbar.
@@ -133,6 +142,7 @@ yarn test:app --watch=false packages/excalidraw/components/Trans.test.tsx -t "sh
 - Reuse `packages/excalidraw/tests/helpers/api.ts` and `packages/excalidraw/tests/helpers/ui.ts` for editor interaction tests.
 - Many tests rely on `window.h` as a test hook exposing app state and elements.
 - Prefer focused tests near the affected package before running the full suite.
+- For recent whiteboard defaults and toolbar behavior, start with `excalidraw-app/tests/appState.test.ts`, `packages/excalidraw/tests/actionWhiteboardMode.test.ts`, and `packages/excalidraw/tests/whiteboardToolbar.test.tsx`.
 - Update snapshots intentionally and only when the whiteboard UI change is expected.
 - For whiteboard changes, verify both whiteboard mode and normal mode so upstream UI is not accidentally broken.
 - If you touch persistence, check both app state defaults and restore behavior.

@@ -129,6 +129,7 @@ export const getDefaultAppState = (): Omit<
     activeLockedId: null,
     bindMode: "orbit",
     whiteboardMode: false,
+    freedrawSmoothingEnabled: undefined,
     zoomLocked: true,
     whiteboardToolbarScale: 1,
     whiteboardSideControlsScale: 1,

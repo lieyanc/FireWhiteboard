@@ -31,7 +31,7 @@ describe("WhiteboardToolbar", () => {
     fireEvent.click(swatches[1]!);
 
     await waitFor(() => {
-      expect(h.state.currentItemStrokeColor).toBe("#e03131");
+      expect(h.state.currentItemStrokeColor).toBe("#e60012");
       expect(h.state.activeTool.type).toBe("freedraw");
       expect(swatches[1]).toHaveClass(
         "whiteboard-toolbar__color-option--active",

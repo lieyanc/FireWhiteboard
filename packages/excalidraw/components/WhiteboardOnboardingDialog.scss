@@ -3,9 +3,18 @@
 .excalidraw {
   .WhiteboardOnboardingDialog {
     .WhiteboardOnboardingDialog__body {
-      margin: 0 0 1.5rem 0;
+      margin: 0 0 0.75rem 0;
       font-size: 0.95rem;
       color: var(--color-gray-80);
+
+      &:last-of-type {
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    .WhiteboardOnboardingDialog__body--notice {
+      color: var(--color-gray-90);
+      font-weight: 500;
     }
 
     .WhiteboardOnboardingDialog__actions {

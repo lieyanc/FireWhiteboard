@@ -199,9 +199,7 @@ const LayerUI = ({
     if (previousWhiteboardModeRef.current !== appState.whiteboardMode) {
       if (appState.whiteboardMode) {
         setWhiteboardOnboardingDismissed(false);
-        if (!document.fullscreenElement) {
-          setShowWhiteboardOnboarding(true);
-        }
+        setShowWhiteboardOnboarding(true);
       } else {
         setShowWhiteboardOnboarding(false);
       }
@@ -211,11 +209,6 @@ const LayerUI = ({
 
   React.useEffect(() => {
     if (!appState.whiteboardMode || whiteboardOnboardingDismissed) {
-      return;
-    }
-
-    if (document.fullscreenElement) {
-      setShowWhiteboardOnboarding(false);
       return;
     }
 
@@ -361,7 +354,9 @@ const LayerUI = ({
                   isCompactStylesPanel,
               })}
             >
-              {shouldRenderSelectedShapeActions && !appState.whiteboardMode && renderSelectedShapeActions()}
+              {shouldRenderSelectedShapeActions &&
+                !appState.whiteboardMode &&
+                renderSelectedShapeActions()}
             </div>
           </Stack.Col>
           {!appState.viewModeEnabled &&
@@ -543,7 +538,9 @@ const LayerUI = ({
       )}
       <WhiteboardOnboardingDialog
         open={showWhiteboardOnboarding}
-        canEnterFullscreen={Boolean(document.fullscreenEnabled)}
+        canEnterFullscreen={Boolean(
+          document.fullscreenEnabled && !document.fullscreenElement,
+        )}
         onDismiss={() => {
           setShowWhiteboardOnboarding(false);
           setWhiteboardOnboardingDismissed(true);

@@ -299,6 +299,7 @@
   "whiteboardOnboarding": {
     "title": "Whiteboard mode",
     "description": "For the best experience, switch to fullscreen while presenting or teaching.",
+    "predictionNotice": "Stroke prediction & stabilization is off by default in whiteboard mode. You can turn it back on from the menu if needed.",
     "dismiss": "Maybe later",
     "enterFullscreen": "Enter fullscreen"
   },

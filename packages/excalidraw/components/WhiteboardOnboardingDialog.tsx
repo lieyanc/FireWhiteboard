@@ -52,17 +52,21 @@ export const WhiteboardOnboardingDialog = ({
       <p className="WhiteboardOnboardingDialog__body">
         {t("whiteboardOnboarding.description")}
       </p>
+      <p className="WhiteboardOnboardingDialog__body WhiteboardOnboardingDialog__body--notice">
+        {t("whiteboardOnboarding.predictionNotice")}
+      </p>
       <div className="WhiteboardOnboardingDialog__actions">
         <DialogActionButton
           label={t("whiteboardOnboarding.dismiss")}
           onClick={onDismiss}
         />
-        <DialogActionButton
-          label={t("whiteboardOnboarding.enterFullscreen")}
-          onClick={handleEnterFullscreen}
-          actionType="primary"
-          disabled={!canEnterFullscreen}
-        />
+        {canEnterFullscreen && (
+          <DialogActionButton
+            label={t("whiteboardOnboarding.enterFullscreen")}
+            onClick={handleEnterFullscreen}
+            actionType="primary"
+          />
+        )}
       </div>
     </Dialog>
   );

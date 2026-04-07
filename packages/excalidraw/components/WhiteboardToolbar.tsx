@@ -73,9 +73,9 @@ const STROKE_WIDTH_STEP = 0.1;
 // Common stroke colors
 const STROKE_COLORS = [
   "#1e1e1e",
-  "#e03131",
+  "#e60012",
   "#2f9e44",
-  "#1971c2",
+  "#018eee",
   "#f08c00",
   "#6741d9",
   "#0c8599",

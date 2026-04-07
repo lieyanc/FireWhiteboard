@@ -298,6 +298,7 @@
   "whiteboardOnboarding": {
     "title": "白板模式",
     "description": "为了获得更好的展示/教学体验，建议切换到全屏模式。",
+    "predictionNotice": "白板模式下已默认关闭笔迹预测/抖动修复；如有需要，可在菜单中重新开启。",
     "dismiss": "稍后再说",
     "enterFullscreen": "进入全屏"
   },

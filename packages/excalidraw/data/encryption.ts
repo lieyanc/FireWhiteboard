@@ -4,6 +4,11 @@ import { blobToArrayBuffer } from "./blob";
 
 export const IV_LENGTH_BYTES = 12;
 
+// Collaboration broadcasts encrypt/decrypt on the hot path. Cache imported
+// keys by their serialized representation so repeated messages don't pay the
+// importKey cost on every round trip.
+const importedCryptoKeys = new Map<string, Promise<CryptoKey>>();
+
 export const createIV = (): Uint8Array<ArrayBuffer> => {
   const arr = new Uint8Array(IV_LENGTH_BYTES);
   return window.crypto.getRandomValues(arr);
@@ -29,23 +34,37 @@ export const generateEncryptionKey = async <
   ) as T extends "cryptoKey" ? CryptoKey : string;
 };
 
-export const getCryptoKey = (key: string, usage: KeyUsage) =>
-  window.crypto.subtle.importKey(
-    "jwk",
-    {
-      alg: "A128GCM",
-      ext: true,
-      k: key,
-      key_ops: ["encrypt", "decrypt"],
-      kty: "oct",
-    },
-    {
-      name: "AES-GCM",
-      length: ENCRYPTION_KEY_BITS,
-    },
-    false, // extractable
-    [usage],
-  );
+export const getCryptoKey = (key: string, _usage: KeyUsage) => {
+  let importedKey = importedCryptoKeys.get(key);
+
+  if (!importedKey) {
+    importedKey = window.crypto.subtle
+      .importKey(
+        "jwk",
+        {
+          alg: "A128GCM",
+          ext: true,
+          k: key,
+          key_ops: ["encrypt", "decrypt"],
+          kty: "oct",
+        },
+        {
+          name: "AES-GCM",
+          length: ENCRYPTION_KEY_BITS,
+        },
+        false, // extractable
+        ["encrypt", "decrypt"],
+      )
+      .catch((error) => {
+        importedCryptoKeys.delete(key);
+        throw error;
+      });
+
+    importedCryptoKeys.set(key, importedKey);
+  }
+
+  return importedKey;
+};
 
 export const encryptData = async (
   key: string | CryptoKey,

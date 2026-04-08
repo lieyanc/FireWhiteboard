@@ -1,4 +1,5 @@
 import { base64urlToString } from "@excalidraw/excalidraw/data/encode";
+import { restoreElements } from "@excalidraw/excalidraw/data/restore";
 import { ExcalidrawError } from "@excalidraw/excalidraw/errors";
 import { useLayoutEffect, useRef } from "react";
 
@@ -10,6 +11,7 @@ import type { AppState, BinaryFileData } from "@excalidraw/excalidraw/types";
 
 import { STORAGE_KEYS } from "./app_constants";
 import { LocalData } from "./data/LocalData";
+import { parseElementsFromLocalStorageString } from "./data/localStorage";
 
 const EVENT_REQUEST_SCENE = "REQUEST_SCENE";
 
@@ -51,8 +53,13 @@ const parseSceneData = async ({
   }
 
   try {
-    const elements = JSON.parse(
-      rawElementsString,
+    const elements = restoreElements(
+      parseElementsFromLocalStorageString(rawElementsString),
+      null,
+      {
+        repairBindings: true,
+        deleteInvisibleElements: true,
+      },
     ) as OrderedExcalidrawElement[];
 
     if (!elements.length) {

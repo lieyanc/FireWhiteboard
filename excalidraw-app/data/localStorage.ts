@@ -1,8 +1,74 @@
 import type { ExcalidrawElement } from "@excalidraw/element/types";
 import type { AppState } from "@excalidraw/excalidraw/types";
+import { getNonDeletedElements } from "@excalidraw/element";
 
 import { STORAGE_KEYS } from "../app_constants";
 import { getLocalAppStateWithWhiteboardDefaults } from "../appState";
+import {
+  decodeWhiteboardElementsFromLocalStorage,
+  encodeWhiteboardElementsForLocalStorage,
+} from "./whiteboardLocalStorage";
+
+let whiteboardCompactLocalStoragePreference: boolean | null = null;
+
+export const getWhiteboardCompactLocalStoragePreference = () => {
+  if (whiteboardCompactLocalStoragePreference != null) {
+    return whiteboardCompactLocalStoragePreference;
+  }
+
+  try {
+    whiteboardCompactLocalStoragePreference = JSON.parse(
+      localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_WHITEBOARD_COMPACT) ||
+        "false",
+    );
+  } catch (error: any) {
+    console.error(error);
+    whiteboardCompactLocalStoragePreference = false;
+  }
+
+  return whiteboardCompactLocalStoragePreference;
+};
+
+export const setWhiteboardCompactLocalStoragePreference = (enabled: boolean) => {
+  whiteboardCompactLocalStoragePreference = enabled;
+
+  try {
+    localStorage.setItem(
+      STORAGE_KEYS.LOCAL_STORAGE_WHITEBOARD_COMPACT,
+      JSON.stringify(enabled),
+    );
+  } catch (error: any) {
+    console.error(error);
+  }
+};
+
+export const serializeElementsForLocalStorage = (
+  elements: readonly ExcalidrawElement[],
+  appState: Pick<AppState, "whiteboardMode">,
+) => {
+  const nonDeletedElements = getNonDeletedElements(elements);
+  const plain = JSON.stringify(nonDeletedElements);
+
+  if (
+    !appState.whiteboardMode ||
+    !getWhiteboardCompactLocalStoragePreference()
+  ) {
+    return plain;
+  }
+
+  const compact = JSON.stringify(
+    encodeWhiteboardElementsForLocalStorage(nonDeletedElements),
+  );
+
+  return compact.length < plain.length ? compact : plain;
+};
+
+export const parseElementsFromLocalStorageString = (value: string) => {
+  const parsed = JSON.parse(value) as unknown;
+  return Array.isArray(parsed)
+    ? (parsed as ExcalidrawElement[])
+    : decodeWhiteboardElementsFromLocalStorage(parsed);
+};
 
 export const saveUsernameToLocalStorage = (username: string) => {
   try {
@@ -45,7 +111,7 @@ export const importFromLocalStorage = () => {
   let elements: ExcalidrawElement[] = [];
   if (savedElements) {
     try {
-      elements = JSON.parse(savedElements);
+      elements = parseElementsFromLocalStorageString(savedElements);
     } catch (error: any) {
       console.error(error);
       // Do nothing because elements array is already empty
@@ -81,11 +147,20 @@ export const getTotalStorageSize = () => {
   try {
     const appState = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_APP_STATE);
     const collab = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_COLLAB);
+    const compactPreference = localStorage.getItem(
+      STORAGE_KEYS.LOCAL_STORAGE_WHITEBOARD_COMPACT,
+    );
 
     const appStateSize = appState?.length || 0;
     const collabSize = collab?.length || 0;
+    const compactPreferenceSize = compactPreference?.length || 0;
 
-    return appStateSize + collabSize + getElementsStorageSize();
+    return (
+      appStateSize +
+      collabSize +
+      compactPreferenceSize +
+      getElementsStorageSize()
+    );
   } catch (error: any) {
     console.error(error);
     return 0;

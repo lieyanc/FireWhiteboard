@@ -23,6 +23,10 @@ import type { Theme } from "@excalidraw/element/types";
 
 import { LanguageList } from "../app-language/LanguageList";
 import { isExcalidrawPlusSignedUser } from "../app_constants";
+import {
+  getWhiteboardCompactLocalStoragePreference,
+  setWhiteboardCompactLocalStoragePreference,
+} from "../data/localStorage";
 
 import { saveDebugState } from "./DebugCanvas";
 
@@ -51,6 +55,8 @@ export const AppMainMenu: React.FC<{
   );
   const pageNavScale = clampScale(appState.whiteboardPageNavScale ?? 1);
   const freedrawSmoothingEnabled = appState.freedrawSmoothingEnabled ?? true;
+  const [whiteboardCompactLocalStorage, setWhiteboardCompactLocalStorage] =
+    React.useState(() => getWhiteboardCompactLocalStoragePreference());
 
   return (
     <MainMenu>
@@ -163,6 +169,23 @@ export const AppMainMenu: React.FC<{
           {freedrawSmoothingEnabled
             ? t("buttons.disableStrokeStabilization")
             : t("buttons.enableStrokeStabilization")}
+        </MainMenu.Item>
+      )}
+      {appState.whiteboardMode && (
+        <MainMenu.Item
+          onSelect={() => {
+            const nextValue = !whiteboardCompactLocalStorage;
+            setWhiteboardCompactLocalStoragePreference(nextValue);
+            setWhiteboardCompactLocalStorage(nextValue);
+            setAppState({
+              openMenu: null,
+              openPopup: null,
+            });
+          }}
+          aria-label="白板压缩本地缓存"
+        >
+          白板压缩本地缓存
+          {whiteboardCompactLocalStorage && " ✓"}
         </MainMenu.Item>
       )}
       {appState.whiteboardMode && (

@@ -232,6 +232,7 @@
     "whiteboardMode": "Whiteboard mode",
     "enableStrokeStabilization": "Enable stroke prediction & stabilization",
     "disableStrokeStabilization": "Disable stroke prediction & stabilization",
+    "lowLatencyMode": "Low-latency mode",
     "objectsSnapMode": "Snap to objects",
     "exitZenMode": "Exit zen mode",
     "cancel": "Cancel",
@@ -301,7 +302,11 @@
     "description": "For the best experience, switch to fullscreen while presenting or teaching.",
     "predictionNotice": "Stroke prediction & stabilization is off by default in whiteboard mode. You can turn it back on from the menu if needed.",
     "dismiss": "Maybe later",
-    "enterFullscreen": "Enter fullscreen"
+    "enterFullscreen": "Enter fullscreen",
+    "fullscreenInterruptedTitle": "Fullscreen exited",
+    "fullscreenInterruptedDescription": "Fullscreen was exited while whiteboard mode is active. Return to fullscreen to keep presenting without interruption, or ignore this reminder for the current session.",
+    "ignoreThisSession": "Ignore this session",
+    "returnToFullscreen": "Return to fullscreen"
   },
   "toolBar": {
     "selection": "Selection",

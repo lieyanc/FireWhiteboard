@@ -189,38 +189,74 @@ const LayerUI = ({
   const TunnelsJotaiProvider = tunnels.tunnelsJotai.Provider;
 
   const [eyeDropperState, setEyeDropperState] = useAtom(activeEyeDropperAtom);
-  const [showWhiteboardOnboarding, setShowWhiteboardOnboarding] =
-    React.useState(false);
   const [whiteboardOnboardingDismissed, setWhiteboardOnboardingDismissed] =
-    React.useState(false);
+    React.useState(Boolean(document.fullscreenElement));
+  const [isFullscreen, setIsFullscreen] = React.useState(
+    Boolean(document.fullscreenElement),
+  );
+  const [
+    showWhiteboardFullscreenInterruptedDialog,
+    setShowWhiteboardFullscreenInterruptedDialog,
+  ] = React.useState(false);
+  const [
+    whiteboardFullscreenInterruptedIgnored,
+    setWhiteboardFullscreenInterruptedIgnored,
+  ] = React.useState(false);
   const previousWhiteboardModeRef = React.useRef(appState.whiteboardMode);
+  const whiteboardModeRef = React.useRef(appState.whiteboardMode);
+  const wasFullscreenRef = React.useRef(Boolean(document.fullscreenElement));
+  const whiteboardFullscreenInterruptedIgnoredRef = React.useRef(
+    whiteboardFullscreenInterruptedIgnored,
+  );
+
+  const showWhiteboardOnboarding =
+    appState.whiteboardMode &&
+    !whiteboardOnboardingDismissed &&
+    !isFullscreen &&
+    !showWhiteboardFullscreenInterruptedDialog;
+
+  React.useEffect(() => {
+    whiteboardModeRef.current = appState.whiteboardMode;
+  }, [appState.whiteboardMode]);
+
+  React.useEffect(() => {
+    whiteboardFullscreenInterruptedIgnoredRef.current =
+      whiteboardFullscreenInterruptedIgnored;
+  }, [whiteboardFullscreenInterruptedIgnored]);
 
   React.useEffect(() => {
     if (previousWhiteboardModeRef.current !== appState.whiteboardMode) {
+      setShowWhiteboardFullscreenInterruptedDialog(false);
+
       if (appState.whiteboardMode) {
-        setWhiteboardOnboardingDismissed(false);
-        setShowWhiteboardOnboarding(true);
+        setWhiteboardOnboardingDismissed(Boolean(document.fullscreenElement));
       } else {
-        setShowWhiteboardOnboarding(false);
+        setWhiteboardOnboardingDismissed(false);
       }
+
       previousWhiteboardModeRef.current = appState.whiteboardMode;
     }
   }, [appState.whiteboardMode]);
 
   React.useEffect(() => {
-    if (!appState.whiteboardMode || whiteboardOnboardingDismissed) {
-      return;
-    }
-
-    setShowWhiteboardOnboarding(true);
-  }, [appState.whiteboardMode, whiteboardOnboardingDismissed]);
-
-  React.useEffect(() => {
     const handleFullscreenChange = () => {
-      if (document.fullscreenElement) {
-        setShowWhiteboardOnboarding(false);
+      const nextIsFullscreen = Boolean(document.fullscreenElement);
+      const wasFullscreen = wasFullscreenRef.current;
+
+      setIsFullscreen(nextIsFullscreen);
+
+      if (nextIsFullscreen) {
         setWhiteboardOnboardingDismissed(true);
+        setShowWhiteboardFullscreenInterruptedDialog(false);
+      } else if (
+        wasFullscreen &&
+        whiteboardModeRef.current &&
+        !whiteboardFullscreenInterruptedIgnoredRef.current
+      ) {
+        setShowWhiteboardFullscreenInterruptedDialog(true);
       }
+
+      wasFullscreenRef.current = nextIsFullscreen;
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -542,8 +578,21 @@ const LayerUI = ({
           document.fullscreenEnabled && !document.fullscreenElement,
         )}
         onDismiss={() => {
-          setShowWhiteboardOnboarding(false);
           setWhiteboardOnboardingDismissed(true);
+        }}
+      />
+      <WhiteboardOnboardingDialog
+        open={showWhiteboardFullscreenInterruptedDialog}
+        variant="fullscreenInterrupted"
+        canEnterFullscreen={Boolean(
+          document.fullscreenEnabled && !document.fullscreenElement,
+        )}
+        onDismiss={() => {
+          setWhiteboardFullscreenInterruptedIgnored(true);
+          setShowWhiteboardFullscreenInterruptedDialog(false);
+        }}
+        onEnterFullscreen={() => {
+          setShowWhiteboardFullscreenInterruptedDialog(false);
         }}
       />
       {eyeDropperState && editorInterface.formFactor !== "phone" && (

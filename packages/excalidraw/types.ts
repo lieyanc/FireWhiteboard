@@ -462,6 +462,8 @@ export interface AppState {
   whiteboardMode: boolean;
   /** enable stroke prediction/jitter smoothing for freedraw */
   freedrawSmoothingEnabled?: boolean;
+  /** use a cheaper in-progress stroke preview while drawing freedraw */
+  lowLatencyDrawingEnabled: boolean;
   /** lock touch zoom in whiteboard mode */
   zoomLocked: boolean;
   /** whiteboard toolbar UI scale (1 = default) */

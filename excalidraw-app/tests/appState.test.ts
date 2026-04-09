@@ -9,6 +9,7 @@ describe("whiteboard appState defaults", () => {
 
     expect(appState.whiteboardMode).toBe(true);
     expect(appState.freedrawSmoothingEnabled).toBe(false);
+    expect(appState.lowLatencyDrawingEnabled).toBe(false);
   });
 
   it("does not force smoothing off outside whiteboard mode", () => {

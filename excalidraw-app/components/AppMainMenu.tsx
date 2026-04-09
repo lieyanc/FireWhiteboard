@@ -55,6 +55,7 @@ export const AppMainMenu: React.FC<{
   );
   const pageNavScale = clampScale(appState.whiteboardPageNavScale ?? 1);
   const freedrawSmoothingEnabled = appState.freedrawSmoothingEnabled ?? true;
+  const lowLatencyDrawingEnabled = appState.lowLatencyDrawingEnabled;
   const [whiteboardCompactLocalStorage, setWhiteboardCompactLocalStorage] =
     React.useState(() => getWhiteboardCompactLocalStoragePreference());
 
@@ -173,6 +174,21 @@ export const AppMainMenu: React.FC<{
       )}
       {appState.whiteboardMode && (
         <MainMenu.Item
+          icon={FreedrawIcon}
+          data-testid="toggle-low-latency-mode"
+          onSelect={() => {
+            setAppState({
+              lowLatencyDrawingEnabled: !lowLatencyDrawingEnabled,
+            });
+          }}
+          aria-label={t("buttons.lowLatencyMode")}
+        >
+          {t("buttons.lowLatencyMode")}
+          {lowLatencyDrawingEnabled && " ✓"}
+        </MainMenu.Item>
+      )}
+      {appState.whiteboardMode && (
+        <MainMenu.Item
           onSelect={() => {
             const nextValue = !whiteboardCompactLocalStorage;
             setWhiteboardCompactLocalStoragePreference(nextValue);
@@ -190,9 +206,7 @@ export const AppMainMenu: React.FC<{
       )}
       {appState.whiteboardMode && (
         <MainMenu.ItemCustom className="whiteboard-scale-menu">
-          <div className="whiteboard-scale-menu__title">
-            Whiteboard scale
-          </div>
+          <div className="whiteboard-scale-menu__title">Whiteboard scale</div>
           <div className="whiteboard-scale-menu__row">
             <span className="whiteboard-scale-menu__label">Toolbar</span>
             <input
@@ -204,9 +218,7 @@ export const AppMainMenu: React.FC<{
               value={toolbarScale}
               aria-label="Whiteboard toolbar scale"
               onChange={(event) => {
-                const nextValue = clampScale(
-                  Number(event.currentTarget.value),
-                );
+                const nextValue = clampScale(Number(event.currentTarget.value));
                 setAppState({ whiteboardToolbarScale: nextValue });
               }}
             />
@@ -225,9 +237,7 @@ export const AppMainMenu: React.FC<{
               value={sideControlsScale}
               aria-label="Whiteboard side controls scale"
               onChange={(event) => {
-                const nextValue = clampScale(
-                  Number(event.currentTarget.value),
-                );
+                const nextValue = clampScale(Number(event.currentTarget.value));
                 setAppState({ whiteboardSideControlsScale: nextValue });
               }}
             />
@@ -246,9 +256,7 @@ export const AppMainMenu: React.FC<{
               value={pageNavScale}
               aria-label="Whiteboard page navigation scale"
               onChange={(event) => {
-                const nextValue = clampScale(
-                  Number(event.currentTarget.value),
-                );
+                const nextValue = clampScale(Number(event.currentTarget.value));
                 setAppState({ whiteboardPageNavScale: nextValue });
               }}
             />

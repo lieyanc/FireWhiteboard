@@ -16,6 +16,7 @@ describe("default whiteboard mode", () => {
     await waitFor(() => {
       expect(h.state.whiteboardMode).toBe(true);
       expect(h.state.freedrawSmoothingEnabled).toBe(false);
+      expect(h.state.lowLatencyDrawingEnabled).toBe(false);
     });
   });
 });

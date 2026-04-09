@@ -11,17 +11,22 @@ import "./WhiteboardOnboardingDialog.scss";
 interface WhiteboardOnboardingDialogProps {
   open: boolean;
   canEnterFullscreen: boolean;
+  variant?: "onboarding" | "fullscreenInterrupted";
   onDismiss: () => void;
+  onEnterFullscreen?: () => void;
 }
 
 export const WhiteboardOnboardingDialog = ({
   open,
   canEnterFullscreen,
+  variant = "onboarding",
   onDismiss,
+  onEnterFullscreen,
 }: WhiteboardOnboardingDialogProps) => {
   const { t } = useI18n();
   const { container } = useExcalidrawContainer();
   const setAppState = useExcalidrawSetAppState();
+  const isFullscreenInterrupted = variant === "fullscreenInterrupted";
 
   if (!open) {
     return null;
@@ -35,7 +40,7 @@ export const WhiteboardOnboardingDialog = ({
 
     try {
       await container.requestFullscreen();
-      onDismiss();
+      (onEnterFullscreen ?? onDismiss)();
     } catch (error: any) {
       console.warn(error);
       setAppState({ errorMessage: t("errors.cannotEnterFullscreen") });
@@ -46,23 +51,40 @@ export const WhiteboardOnboardingDialog = ({
     <Dialog
       onCloseRequest={onDismiss}
       size="small"
-      title={t("whiteboardOnboarding.title")}
+      title={
+        isFullscreenInterrupted
+          ? t("whiteboardOnboarding.fullscreenInterruptedTitle")
+          : t("whiteboardOnboarding.title")
+      }
       className="WhiteboardOnboardingDialog"
+      closeOnClickOutside={!isFullscreenInterrupted}
     >
       <p className="WhiteboardOnboardingDialog__body">
-        {t("whiteboardOnboarding.description")}
+        {isFullscreenInterrupted
+          ? t("whiteboardOnboarding.fullscreenInterruptedDescription")
+          : t("whiteboardOnboarding.description")}
       </p>
-      <p className="WhiteboardOnboardingDialog__body WhiteboardOnboardingDialog__body--notice">
-        {t("whiteboardOnboarding.predictionNotice")}
-      </p>
+      {!isFullscreenInterrupted && (
+        <p className="WhiteboardOnboardingDialog__body WhiteboardOnboardingDialog__body--notice">
+          {t("whiteboardOnboarding.predictionNotice")}
+        </p>
+      )}
       <div className="WhiteboardOnboardingDialog__actions">
         <DialogActionButton
-          label={t("whiteboardOnboarding.dismiss")}
+          label={
+            isFullscreenInterrupted
+              ? t("whiteboardOnboarding.ignoreThisSession")
+              : t("whiteboardOnboarding.dismiss")
+          }
           onClick={onDismiss}
         />
         {canEnterFullscreen && (
           <DialogActionButton
-            label={t("whiteboardOnboarding.enterFullscreen")}
+            label={
+              isFullscreenInterrupted
+                ? t("whiteboardOnboarding.returnToFullscreen")
+                : t("whiteboardOnboarding.enterFullscreen")
+            }
             onClick={handleEnterFullscreen}
             actionType="primary"
           />

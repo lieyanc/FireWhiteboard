@@ -231,6 +231,7 @@
     "zenMode": "禅模式",
     "enableStrokeStabilization": "开启笔迹预测/抖动修复",
     "disableStrokeStabilization": "关闭笔迹预测/抖动修复",
+    "lowLatencyMode": "低延迟模式",
     "objectsSnapMode": "吸附至对象",
     "exitZenMode": "退出禅模式",
     "cancel": "取消",
@@ -300,7 +301,11 @@
     "description": "为了获得更好的展示/教学体验，建议切换到全屏模式。",
     "predictionNotice": "白板模式下已默认关闭笔迹预测/抖动修复；如有需要，可在菜单中重新开启。",
     "dismiss": "稍后再说",
-    "enterFullscreen": "进入全屏"
+    "enterFullscreen": "进入全屏",
+    "fullscreenInterruptedTitle": "已退出全屏",
+    "fullscreenInterruptedDescription": "白板模式下检测到已退出全屏。你可以回到全屏继续展示，或在本次会话中忽略此提醒。",
+    "ignoreThisSession": "此会话忽略",
+    "returnToFullscreen": "回到全屏"
   },
   "toolBar": {
     "selection": "选择",

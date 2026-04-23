@@ -1,4 +1,5 @@
 import path from "path";
+import { execSync } from "child_process";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
@@ -11,8 +12,42 @@ import { woff2BrowserPlugin } from "../scripts/woff2/woff2-vite-plugins";
 export default defineConfig(({ mode }) => {
   // To load .env variables
   const envVars = loadEnv(mode, `../`);
+  const safeExec = (command: string) => {
+    try {
+      return execSync(command, { encoding: "utf8" }).trim();
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const normalizeRepo = (repo: string) =>
+    repo
+      .replace(/^git@github.com:/, "")
+      .replace(/^https?:\/\/github.com\//, "")
+      .replace(/\.git$/, "")
+      .trim();
+
+  const gitRepoFromRemote = () => {
+    const remote = safeExec("git config --get remote.origin.url");
+    return remote ? normalizeRepo(remote) : "";
+  };
+
+  const buildTime = envVars.VITE_APP_BUILD_TIME || new Date().toISOString();
+  const gitSha =
+    envVars.VITE_APP_GIT_SHA || safeExec("git rev-parse --short HEAD");
+  const gitBranch =
+    envVars.VITE_APP_GIT_BRANCH ||
+    safeExec("git rev-parse --abbrev-ref HEAD");
+  const gitRepo =
+    envVars.VITE_APP_GIT_REPO || gitRepoFromRemote() || "unknown";
   // https://vitejs.dev/config/
   return {
+    define: {
+      "import.meta.env.VITE_APP_GIT_SHA": JSON.stringify(gitSha),
+      "import.meta.env.VITE_APP_GIT_BRANCH": JSON.stringify(gitBranch),
+      "import.meta.env.VITE_APP_GIT_REPO": JSON.stringify(gitRepo),
+      "import.meta.env.VITE_APP_BUILD_TIME": JSON.stringify(buildTime),
+    },
     server: {
       port: Number(envVars.VITE_APP_PORT || 3000),
       // open the browser

@@ -37,6 +37,9 @@ interface ImportMetaEnv {
   VITE_APP_PLUS_APP: string;
 
   VITE_APP_GIT_SHA: string;
+  VITE_APP_GIT_BRANCH: string;
+  VITE_APP_GIT_REPO: string;
+  VITE_APP_BUILD_TIME: string;
 
   MODE: string;
 
